@@ -1,12 +1,16 @@
 package au.com.ibenta.test.persistence;
 
 import lombok.Data;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 
 @Data
 @Entity
 @Table(name = "user")
+@Accessors(chain = true)
+@ToString
 public class UserEntity {
 
     @Id
