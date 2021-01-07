@@ -161,7 +161,7 @@ public class UserServiceUnitTest {
         val userListStub = new ArrayList<UserEntity>() {{
             add(userStub);
             add(new UserEntity()
-                    .setId(1L)
+                    .setId(2L)
                     .setFirstName("Sample")
                     .setLastName("User")
                     .setEmail("sample.user@gmail.com")
