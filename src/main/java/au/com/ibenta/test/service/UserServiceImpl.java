@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static org.springframework.util.StringUtils.hasLength;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -33,15 +35,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<UserEntity> update( UserEntity user) throws UserNotFound {
+    public Mono<UserEntity> update(UserEntity user) throws UserNotFound {
         val userId = user.getId();
-        return this.checkUserById(userId).map(userFound -> this.userRepo.save(user
-                .setId(userId)
-                .setFirstName(user.getFirstName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setPassword(user.getPassword())
-        ));
+        return this.get(userId)
+                .switchIfEmpty(Mono.error(() -> new UserNotFound("Unable to find user with id " + userId)))
+                .map(foundUser -> {
+
+                    if (hasLength(user.getFirstName()))
+                        foundUser.setFirstName(user.getFirstName());
+                    if (hasLength(user.getLastName()))
+                        foundUser.setLastName(user.getLastName());
+                    if(hasLength(user.getEmail()))
+                        foundUser.setEmail(user.getEmail());
+                    if (hasLength(user.getPassword()))
+                        foundUser.setPassword(user.getPassword());
+
+                    return this.userRepo.save(foundUser);
+                });
     }
 
     @Override

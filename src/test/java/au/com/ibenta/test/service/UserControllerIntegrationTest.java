@@ -1,5 +1,6 @@
 package au.com.ibenta.test.service;
 
+import au.com.ibenta.test.model.ChangePasswordRequest;
 import au.com.ibenta.test.persistence.UserEntity;
 import lombok.val;
 import org.junit.jupiter.api.*;
@@ -49,8 +50,7 @@ public class UserControllerIntegrationTest {
                 .expectBody()
                 .jsonPath("$.firstName").isEqualTo("Roberto")
                 .jsonPath("$.lastName").isEqualTo("Tabuan")
-                .jsonPath("$.email").isEqualTo("rob.tabuan@gmail.com")
-                .jsonPath("$.password").isEqualTo("password");
+                .jsonPath("$.email").isEqualTo("rob.tabuan@gmail.com");
     }
 
     @Test
@@ -73,8 +73,8 @@ public class UserControllerIntegrationTest {
                 .expectBody()
                 .jsonPath("$.firstName").isEqualTo("Rob")
                 .jsonPath("$.lastName").isEqualTo("Tabuan")
-                .jsonPath("$.email").isEqualTo("rob.tabuan@gmail.com")
-                .jsonPath("$.password").isEqualTo("newPassword");
+                .jsonPath("$.email").isEqualTo("rob.tabuan@gmail.com");
+
     }
 
     @Test
@@ -151,4 +151,133 @@ public class UserControllerIntegrationTest {
                 .getResponseBodyContent();
         System.out.println("content = " + content);
     }
+
+    @Test
+    @Order(8)
+    @DisplayName("Require First Name")
+    public void createUserRequireFirstName() {
+        UserEntity newUser = new UserEntity()
+//                .setFirstName("Roberto")
+                .setLastName("Tabuan")
+                .setEmail("rob.tabuan@gmail.com")
+                .setPassword("password");
+
+        webClient.post().uri("/user")
+                .bodyValue(newUser)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.title").isEqualTo("Constraint Violation")
+                .jsonPath("$.violations[0].field").isEqualTo("firstName")
+                .jsonPath("$.violations[0].message").isEqualTo("must not be empty");
+
+
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Require Last Name")
+    public void createUserRequireLastName() {
+        UserEntity newUser = new UserEntity()
+                .setFirstName("Roberto")
+//                .setLastName("Tabuan")
+                .setEmail("rob.tabuan@gmail.com")
+                .setPassword("password");
+
+        webClient.post().uri("/user")
+                .bodyValue(newUser)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.title").isEqualTo("Constraint Violation")
+                .jsonPath("$.violations[0].field").isEqualTo("lastName")
+                .jsonPath("$.violations[0].message").isEqualTo("must not be empty");
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Require Email")
+    public void createUserRequireEmail() {
+        UserEntity newUser = new UserEntity()
+                .setFirstName("Roberto")
+                .setLastName("Tabuan")
+//                .setEmail("rob.tabuan@gmail.com")
+                .setPassword("password");
+
+        webClient.post().uri("/user")
+                .bodyValue(newUser)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.title").isEqualTo("Constraint Violation")
+                .jsonPath("$.violations[0].field").isEqualTo("email")
+                .jsonPath("$.violations[0].message").isEqualTo("must not be empty");
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Email must be valid/well-formed")
+    public void createUserRequireValidEmail() {
+        UserEntity newUser = new UserEntity()
+                .setFirstName("Roberto")
+                .setLastName("Tabuan")
+                .setEmail("rob.tabuan")
+                .setPassword("password");
+
+        webClient.post().uri("/user")
+                .bodyValue(newUser)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.title").isEqualTo("Constraint Violation")
+                .jsonPath("$.violations[0].field").isEqualTo("email")
+                .jsonPath("$.violations[0].message").isEqualTo("must be a well-formed email address");
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Require Password")
+    public void createUserRequirePassword() {
+        UserEntity newUser = new UserEntity()
+                .setFirstName("Roberto")
+                .setLastName("Tabuan")
+                .setEmail("rob.tabuan@gmail.com");
+//                .setPassword("password");
+
+        webClient.post().uri("/user")
+                .bodyValue(newUser)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest()
+                .expectBody()
+                .jsonPath("$.title").isEqualTo("Constraint Violation")
+                .jsonPath("$.violations[0].field").isEqualTo("password")
+                .jsonPath("$.violations[0].message").isEqualTo("must not be empty");
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Update Password")
+    public void createUserUpdatePassword() {
+        ChangePasswordRequest request = new ChangePasswordRequest()
+                .setUserId(1L)
+                .setNewPassword("test-password");
+
+        webClient.patch().uri("/user/password")
+                .bodyValue(request)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isCreated();
+    }
+
 }

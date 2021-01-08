@@ -10,6 +10,9 @@ import org.springframework.boot.info.GitProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -57,6 +60,16 @@ public class Application {
                 .andRoute(GET("/"), redirectToSwagger)
                 .andRoute(GET("/index"), redirectToSwagger)
                 .andRoute(GET("/index.html"), redirectToSwagger);
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    WebClient webClient() {
+        return WebClient.create();
     }
 
     @EventListener(ApplicationReadyEvent.class)

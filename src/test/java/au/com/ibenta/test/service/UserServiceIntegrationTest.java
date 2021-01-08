@@ -1,5 +1,6 @@
 package au.com.ibenta.test.service;
 
+import au.com.ibenta.test.model.User;
 import au.com.ibenta.test.persistence.UserEntity;
 import lombok.val;
 import org.junit.jupiter.api.*;
@@ -21,13 +22,13 @@ public class UserServiceIntegrationTest {
     @Order(1)
     @DisplayName("Create New User")
     public void createUser() {
-        UserEntity newUser = new UserEntity()
+        User newUser = new User()
                 .setFirstName("Roberto")
                 .setLastName("Tabuan")
                 .setEmail("rob.tabuan@gmail.com")
                 .setPassword("password");
 
-        StepVerifier.create(this.userService.create(newUser))
+        StepVerifier.create(this.userService.create(newUser.toUserEntity()))
                 .assertNext(userEntity -> {
                     System.out.println(userEntity);
                     assertNotNull(userEntity);
@@ -69,7 +70,10 @@ public class UserServiceIntegrationTest {
     @DisplayName("Update a Non-Existent user: must throw 'UserNotFound'")
     public void updateNonExistentUser() {
 
-        StepVerifier.create(this.userService.update(new UserEntity().setId(200L)))
+        StepVerifier.create(this.userService.update(
+                new UserEntity()
+                        .setId(200L))
+        )
                 .expectError(UserNotFound.class)
                 .verify();
     }
