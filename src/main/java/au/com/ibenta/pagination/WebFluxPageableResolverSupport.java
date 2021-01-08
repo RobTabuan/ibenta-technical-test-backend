@@ -1,5 +1,6 @@
 package au.com.ibenta.pagination;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.security.Principal;
 import java.util.*;
 
+@Configuration
 public class WebFluxPageableResolverSupport extends HandlerMethodArgumentResolverSupport {
 
     private final PageableHandlerMethodArgumentResolver pageableResolver;
